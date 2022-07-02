@@ -1,5 +1,3 @@
-
-
 metaData = function(MicrobData,
                     CovData,
                     linkIDname,
@@ -53,8 +51,15 @@ metaData = function(MicrobData,
   if (length(colnames(MdataWithId)) != ncol(MdataWithId))
     stop("Microbiome data lack variable names.")
   
-  MdataWithoutId = MdataWithId[, !(colnames(MdataWithId) %in% linkIDname), drop =
-                                 FALSE]
+  MdataWithoutId=data.matrix(MdataWithId[,!(colnames(MdataWithId)%in%linkIDname),drop=FALSE])
+  uniqMnames=unique(colnames(MdataWithoutId))
+  if(length(uniqMnames)!=length(colnames(MdataWithoutId))){
+    nDup=length(colnames(MdataWithoutId))-length(uniqMnames)
+    message(nDup," Duplicated taxa/OTU/ASV names are removed from the microbiome data.")
+  }
+  MdataWithoutId=MdataWithoutId[,uniqMnames]
+  MdataWithId=cbind(MdataWithId[,linkIDname,drop=FALSE],MdataWithoutId)
+  
   if (!all(MdataWithoutId >= 0))
     stop("Microbiome data contains negative values.")
   rm(MdataWithoutId)
